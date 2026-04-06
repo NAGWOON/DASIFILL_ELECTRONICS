@@ -147,7 +147,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .qibox{font-size:26px;width:50px;height:50px;background:var(--surface);border:1px solid var(--border);border-radius:11px;display:flex;align-items:center;justify-content:center}
 .qtitle{font-size:19px;font-weight:700}.qdesc{font-size:12px;color:var(--muted);margin-top:3px}
 .icard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:9px;overflow:hidden;transition:border-color .2s}
-.icard.hv{border-color:rgba(34,197,94,.35)}
+.icard.hv{border-color:var(--border2)}
 .icard.pl{border-color:rgba(249,115,22,.35)}
 .itop{padding:13px 15px;display:flex;align-items:center;gap:10px}
 .iemo{font-size:17px;width:26px;text-align:center}
@@ -156,7 +156,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .crow{display:flex;gap:6px;padding:0 15px 13px;flex-wrap:wrap}
 .cb{flex:1;min-width:72px;padding:7px 9px;border:1px solid var(--border2);border-radius:7px;background:var(--surface2);font-family:'Noto Sans KR',sans-serif;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;text-align:center}
 .cb:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-l)}
-.cb.shv{border-color:var(--green);color:var(--green);background:var(--green-l)}
+.cb.shv{border-color:var(--border2);color:var(--muted);background:var(--surface2)}
 .cb.spl{border-color:var(--orange);color:var(--orange);background:var(--orange-l)}
 .cb.sno{border-color:var(--muted2);color:var(--muted2)}
 .cb.ssb{border-color:var(--accent);color:var(--accent);background:var(--accent-l)}
@@ -245,7 +245,7 @@ table.rt tr:nth-child(even) td{background:var(--surface2)}
     <div class="pw-footer">
       © 2026 DASIFILL Design. All rights reserved.<br>
       본 시스템은 DASIFILL 디자인의 독점 저작물입니다.<br>
-      official@dasifilldesign.co.kr
+      <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ff909999969c969e93bf9b9e8c96999693939b9a8c969891d19c90d1948d">[email&#160;protected]</a>
     </div>
   </div>
 </div>
@@ -330,7 +330,7 @@ table.rt tr:nth-child(even) td{background:var(--surface2)}
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ══════════════════════════════════════════════
    DASIFILL 가전제품 퀘스트 시스템 v3
    © 2026 DASIFILL Design. All rights reserved.
@@ -340,7 +340,7 @@ table.rt tr:nth-child(even) td{background:var(--surface2)}
 // ── 비밀번호 설정 ──────────────────────────────
 // 프로젝트마다 이 값만 변경하세요
 // 예: 프로젝트명 + 날짜 조합 권장
-const ACCESS_CODE = 'DASIFILL2021';
+const ACCESS_CODE = '2026dasifill';
 // ─────────────────────────────────────────────
 
 function checkPw(){
@@ -511,6 +511,42 @@ function renderSpace(){
     }
   });
   updateProg();
+
+  // 기타 가전제품 추가 영역
+  const extraWrap = document.createElement('div');
+  extraWrap.style.cssText = 'margin-top:8px';
+  const extraKey = `extra_${sp.id}`;
+  if(!answers[extraKey]) answers[extraKey] = { items: [] };
+
+  function renderExtra(){
+    extraWrap.innerHTML = '';
+    const title = document.createElement('div');
+    title.style.cssText = 'font-size:11px;color:var(--muted);font-family:"DM Mono",monospace;letter-spacing:.06em;margin-bottom:8px;padding-left:2px';
+    title.textContent = '기타 가전제품 추가';
+    extraWrap.appendChild(title);
+
+    answers[extraKey].items.forEach((item, i) => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:7px;margin-bottom:7px;align-items:center';
+      row.innerHTML = `
+        <input class="fi" style="flex:1" placeholder="제품명 입력 (예: 에어프라이어)" value="${item.name||''}"
+          onchange="answers['${extraKey}'].items[${i}].name=this.value">
+        <input class="fi" style="max-width:100px" placeholder="있음/구매예정" value="${item.status||''}"
+          onchange="answers['${extraKey}'].items[${i}].status=this.value">
+        <button class="bdel" onclick="answers['${extraKey}'].items.splice(${i},1);renderExtra()">✕</button>
+      `;
+      extraWrap.appendChild(row);
+    });
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'badd';
+    addBtn.style.cssText = 'font-size:11px;padding:6px 13px;width:100%';
+    addBtn.textContent = '+ 기타 가전제품 추가';
+    addBtn.onclick = () => { answers[extraKey].items.push({name:'',status:''}); renderExtra(); };
+    extraWrap.appendChild(addBtn);
+  }
+  renderExtra();
+  c.appendChild(extraWrap);
 }
 
 function mkCard(item,inst,total){
@@ -554,7 +590,8 @@ function mkDetail(item,k,ans){
     h+='</div>';
   });
   const note=item.dimNote||'가로 × 높이 × 깊이 (mm)';
-  h+=`<div><span class="flbl">치수 — ${note}</span>
+  h+=`<div><span class="flbl">${note}</span>
+    <div style="font-size:11px;color:#f59e0b;margin-bottom:6px">⚠ 치수를 모르실 경우 입력하지 않으셔도 됩니다.</div>
     <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
       <input class="fi dw" placeholder="가로" value="${ans.dim.w}" onchange="answers['${k}'].dim.w=this.value">
       <span class="dsep">×</span>
@@ -630,6 +667,18 @@ function showResult(){
         </tr>`);
       }
     });
+    // 기타 가전제품 추가
+    const extraKey=`extra_${sp.id}`;
+    if(answers[extraKey]?.items?.length){
+      answers[extraKey].items.forEach(item=>{
+        if(!item.name) return;
+        rows.push(`<tr>
+          <td>➕ ${item.name}</td>
+          <td><span class="bdg" style="background:var(--surface2);color:var(--muted)">${item.status||'—'}</span></td>
+          <td>—</td><td>—</td><td>—</td><td style="color:var(--muted)">기타</td>
+        </tr>`);
+      });
+    }
     if(!rows.length)return;
     const sec=document.createElement('div');sec.className='rsec';
     sec.innerHTML=`<div class="rsh">${sp.icon} ${sp.name}</div>
@@ -663,6 +712,14 @@ function copyResult(){
         blk+='\n';
       }
     });
+    // 기타 가전제품
+    const extraKey=`extra_${sp.id}`;
+    if(answers[extraKey]?.items?.length){
+      answers[extraKey].items.forEach(item=>{
+        if(!item.name) return;
+        blk+=`  - [기타] ${item.name}: ${item.status||'—'}\n`;
+      });
+    }
     if(blk)txt+=`【${sp.name}】\n${blk}\n`;
   });
   txt+='\n© 2026 DASIFILL Design';
@@ -679,12 +736,4 @@ function confetti(){
   const cols=['#2563eb','#0ea5e9','#f97316','#f0f0f0','#22c55e'];
   for(let i=0;i<50;i++){
     const el=document.createElement('div');el.className='cf';
-    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.5}s;width:${6+Math.random()*7}px;height:${6+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'}`;
-    document.body.appendChild(el);setTimeout(()=>el.remove(),4000);
-  }
-}
-
-init();
-</script>
-</body>
-</html>
+    el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${cols[Math.floor(Math.random()*cols.length)]};animation-duration:${1.5+Math.random()*2}s;animation-del
